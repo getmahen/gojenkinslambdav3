@@ -39,14 +39,22 @@ node {
 
             stage('Build and Package...'){
               //sh "make packageall PACKAGE_NAME=${packageName}"
-              sh '''
-                mkdir -p ${packageName};
-                cp -r infrastructure ${packageName};
-                zip ${packageName}.zip jenkinsgolambda
-                cp ${packageName}.zip ${packageName};
-                zip -r ${packageName}.zip ${packageName}
-                rm -rf ${packageName}
-              '''
+              
+              // sh '''
+              //   mkdir -p ${packageName};
+              //   cp -r infrastructure ${packageName};
+              //   zip ${packageName}.zip jenkinsgolambda
+              //   cp ${packageName}.zip ${packageName};
+              //   zip -r ${packageName}.zip ${packageName}
+              //   rm -rf ${packageName}
+              // '''
+
+              sh "mkdir -p ${packageName}"
+              sh "cp -r infrastructure ${packageName}"
+              sh "zip ${packageName}.zip jenkinsgolambda"
+              sh "cp ${packageName}.zip ${packageName}"
+              sh "zip -r ${packageName}.zip ${packageName}"
+              sh "rm -rf ${packageName}"
             }
 
             stage('Upload package to AWS S3 testjenkinsartifacts bucket...'){
