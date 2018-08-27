@@ -1,0 +1,3 @@
+bucket = "testjenkinsartifacts"
+role_arn = "arn:aws:iam::674346455231:role/terraform"
+region = "us-west-2"
