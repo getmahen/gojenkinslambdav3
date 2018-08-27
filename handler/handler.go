@@ -12,6 +12,7 @@ import (
 
 var initialized = false
 var version string
+
 var logger zerolog.Logger
 
 var (
@@ -29,9 +30,9 @@ func HandleApiGatewayRequest(request events.APIGatewayProxyRequest) (events.APIG
 	if !initialized {
 		err := initialize()
 		if err != nil {
-			logger.Error().
-				Err(err).
-				Msg("Unable to initialize Lambda")
+			// logger.Error().
+			// 	Err(err).
+			// 	Msg("Unable to initialize Lambda")
 			return events.APIGatewayProxyResponse{}, err
 		}
 		initialized = true
