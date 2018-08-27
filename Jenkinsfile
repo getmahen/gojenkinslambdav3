@@ -15,7 +15,8 @@ node {
 
             stage('Checkout'){
                     //echo "Checking out SCM from ${branchName}"
-                    checkout scm
+                    //checkout scm
+                    git url: 'https://github.com/getmahen/gojenkinslambdav3.git'
             }
 
             stage('Validate'){
