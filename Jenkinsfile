@@ -13,6 +13,8 @@ node {
 
             print "DEBUG: Build triggered for ${params.BUILD_ENV} environment..."
 
+            print "DEBUG: PACKAGE NAME: ${packageName}"
+
             stage('Checkout'){
                     //echo "Checking out SCM from ${branchName}"
                     //checkout scm
@@ -39,7 +41,7 @@ node {
 
             stage('Build and Package...'){
               //sh "make packageall PACKAGE_NAME=${packageName}"
-              
+
               // sh '''
               //   mkdir -p ${packageName};
               //   cp -r infrastructure ${packageName};
