@@ -16,22 +16,20 @@ node {
 
             
             def lambdaName = "jenkinsgolambda"
-            //def gitHash
             def artifactVersion
             def packageName
-
-            
-            //print "DEBUG: PACKAGE NAME: ${packageName}"
 
             stage('Checkout'){
                     checkout scm
             }
 
             stage('Validate'){
-                    def gitHash_1 = sh returnStdout: true, script: 'git rev-parse HEAD'
-                    artifactVersion = "${env.BUILD_ID}-${gitHash_1}".trim()
+                    def gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
+                    artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
                     packageName = "${lambdaName}-${artifactVersion}"
 
+                    print "DEBUG: PACKAGE NAME: ${packageName}"
+                    
                     echo 'Validating terraform...'
                     dir('infrastructure/terraform') {
                       sh 'terraform init -backend=false'
@@ -67,12 +65,12 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              def hash = sh returnStdout: true, script: 'git rev-parse HEAD'
-              def version = "${env.BUILD_ID}-${hash}".trim()
+              // def hash = sh returnStdout: true, script: 'git rev-parse HEAD'
+              // def version = "${env.BUILD_ID}-${hash}".trim()
 
               build job: 'TestDeployLamda', propagate: false, wait: false,
               parameters: [
-              string(name: 'ARTIFACT_VERSION', value: "${version}"), 
+              string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
               string(name: 'REGION', value: 'us-west-2'), 
               string(name: 'DEPLOY_ENV', value: 'dev'), 
               string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
