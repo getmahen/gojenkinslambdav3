@@ -52,11 +52,12 @@ node {
               // '''
 
               sh "make build"
-              
+
               sh "mkdir -p ${packageName}"
               sh "cp -r infrastructure ${packageName}"
-              sh "zip ${packageName}.zip jenkinsgolambda"
-              sh "cp ${packageName}.zip ${packageName}"
+             //sh "zip ${packageName}.zip jenkinsgolambda"
+              sh "zip jenkinsgolambda.zip jenkinsgolambda"
+              sh "cp jenkinsgolambda.zip ${packageName}"
               sh "zip -r ${packageName}.zip ${packageName}"
               sh "rm -rf ${packageName}"
             }
