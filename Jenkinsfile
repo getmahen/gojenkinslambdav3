@@ -9,7 +9,8 @@ node {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
             def lambdaName = "jenkinsgolambda"
-            def packageName = "${lambdaName}-${env.BUILD_ID}-`git rev-parse HEAD`"
+            def artifactVersion = "${env.BUILD_ID}-`git rev-parse HEAD`"
+            def packageName = "${lambdaName}-${artifactVersion}"
             
             print "DEBUG: PACKAGE NAME: ${packageName}"
 
@@ -53,7 +54,12 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: '1-324343432'), string(name: 'REGION', value: 'us-west-2'), string(name: 'DEPLOY_ENV', value: 'dev'), string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), string(name: 'LAMBDA_NAME', value: 'jenkinsgolambda')]
+              build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
+              string(name: 'REGION', value: 'us-west-2'), 
+              string(name: 'DEPLOY_ENV', value: 'dev'), 
+              string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
+              string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), 
+              string(name: 'LAMBDA_NAME', value: "${lambdaName}")]
 
             }
         }
