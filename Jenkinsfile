@@ -9,12 +9,6 @@ node {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
 
-            // def gitHash = "`git rev-parse HEAD`"
-            // def lambdaName = "jenkinsgolambda"
-            // def artifactVersion = "${env.BUILD_ID}-${gitHash}"
-            // def packageName = "${lambdaName}-${artifactVersion}"
-
-            
             def lambdaName = "jenkinsgolambda"
             def artifactVersion
             def packageName
@@ -29,7 +23,7 @@ node {
                     packageName = "${lambdaName}-${artifactVersion}"
 
                     print "DEBUG: PACKAGE NAME: ${packageName}"
-                    
+
                     echo 'Validating terraform...'
                     dir('infrastructure/terraform') {
                       sh 'terraform init -backend=false'
@@ -52,7 +46,6 @@ node {
 
               sh "mkdir -p ${packageName}"
               sh "cp -r infrastructure ${packageName}"
-             //sh "zip ${packageName}.zip jenkinsgolambda"
               sh "zip ${lambdaName}.zip ${lambdaName}"
               sh "cp ${lambdaName}.zip ${packageName}"
               sh "zip -r ${packageName}.zip ${packageName}"
@@ -65,8 +58,6 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              // def hash = sh returnStdout: true, script: 'git rev-parse HEAD'
-              // def version = "${env.BUILD_ID}-${hash}".trim()
 
               build job: 'TestDeployLamda', propagate: false, wait: false,
               parameters: [
