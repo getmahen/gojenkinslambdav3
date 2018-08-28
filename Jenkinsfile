@@ -57,20 +57,20 @@ node {
               sh "rm -rf ${packageName}.zip"
             }
 
-            stage('Trigger Lambda Deployment job') {
-              when {
-                expression { "${params.BUILD_ENV}" == 'dev' }
+            if ("${params.BUILD_ENV}" == 'dev') {
+
+              stage('Trigger Lambda Deployment job') {
+                
+                build job: 'TestDeployLamda', propagate: false, wait: false,
+                parameters: [
+                string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
+                string(name: 'REGION', value: 'us-west-2'), 
+                string(name: 'DEPLOY_ENV', value: 'dev'), 
+                string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
+                string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), 
+                string(name: 'LAMBDA_NAME', value: "${lambdaName}")]
+
               }
-
-              build job: 'TestDeployLamda', propagate: false, wait: false,
-              parameters: [
-              string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
-              string(name: 'REGION', value: 'us-west-2'), 
-              string(name: 'DEPLOY_ENV', value: 'dev'), 
-              string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
-              string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), 
-              string(name: 'LAMBDA_NAME', value: "${lambdaName}")]
-
             }
         }
     }
