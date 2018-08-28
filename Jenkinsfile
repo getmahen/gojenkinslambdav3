@@ -14,8 +14,6 @@ node {
             def packageName
 
             stage('Checkout'){
-                print "DEBUG: BUILD_ENV======${params.BUILD_ENV}"
-                print "DEBUG: BRANCH_NAME======${env.BRANCH_NAME}"
                 checkout scm
             }
 
