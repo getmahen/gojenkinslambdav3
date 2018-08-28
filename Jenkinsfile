@@ -58,7 +58,7 @@ node {
 
             stage('Trigger Lambda Deployment job') {
               def ver = "${artifactVersion}"
-              sh "VERSION---${ver}"
+              sh "echo VERSION---${ver}"
 
               build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: "${ver}"), 
               string(name: 'REGION', value: 'us-west-2'), 
