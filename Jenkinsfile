@@ -9,16 +9,16 @@ node {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
 
-            def gitHash = "`git rev-parse HEAD`"
-            def lambdaName = "jenkinsgolambda"
-            def artifactVersion = "${env.BUILD_ID}-${gitHash}"
-            def packageName = "${lambdaName}-${artifactVersion}"
+            // def gitHash = "`git rev-parse HEAD`"
+            // def lambdaName = "jenkinsgolambda"
+            // def artifactVersion = "${env.BUILD_ID}-${gitHash}"
+            // def packageName = "${lambdaName}-${artifactVersion}"
 
             
-            // def lambdaName = "jenkinsgolambda"
-            // def gitHash
-            // def artifactVersion
-            // def packageName
+            def lambdaName = "jenkinsgolambda"
+            //def gitHash
+            def artifactVersion
+            def packageName
 
             
             //print "DEBUG: PACKAGE NAME: ${packageName}"
@@ -28,9 +28,9 @@ node {
             }
 
             stage('Validate'){
-                    // gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
-                    // artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
-                    // packageName = "${lambdaName}-${artifactVersion}"
+                    def gitHash_1 = sh returnStdout: true, script: 'git rev-parse HEAD'
+                    artifactVersion = "${env.BUILD_ID}-${gitHash_1}".trim()
+                    packageName = "${lambdaName}-${artifactVersion}"
 
                     echo 'Validating terraform...'
                     dir('infrastructure/terraform') {
