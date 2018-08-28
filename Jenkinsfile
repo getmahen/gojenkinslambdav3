@@ -57,7 +57,8 @@ node {
               sh "rm -rf ${packageName}.zip"
             }
 
-            if ("${params.BUILD_ENV}" == 'dev') {
+            // This Stage can be conditionally executed based on the Branch
+            //if ("${params.BUILD_ENV}" == 'dev') {
 
               stage('Trigger Lambda Deployment job') {
                 
@@ -71,7 +72,7 @@ node {
                 string(name: 'LAMBDA_NAME', value: "${lambdaName}")]
 
               }
-            }
+            //}
         }
     }
 }
