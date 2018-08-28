@@ -55,6 +55,8 @@ node {
             stage('Upload package to AWS S3 testjenkinsartifacts bucket...'){
               sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
               sh "rm -rf ${packageName}.zip"
+              sh "rm -rf ${lambdaName}.zip"
+              sh "rm -rf ${lambdaName}"
             }
 
             // This Stage can be conditionally executed based on the Branch
