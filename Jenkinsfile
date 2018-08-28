@@ -9,16 +9,11 @@ node {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
             def packageName = "jenkinsgolambda-${env.BUILD_ID}-`git rev-parse HEAD`"
-            //def branchName = getGitBranchName(scm)
-
-            print "DEBUG: Build triggered for ${params.BUILD_ENV} environment..."
-
+            
             print "DEBUG: PACKAGE NAME: ${packageName}"
 
             stage('Checkout'){
-                    //echo "Checking out SCM from ${branchName}"
-                    //checkout scm
-                    git url: 'https://github.com/getmahen/gojenkinslambdav3.git'
+                    checkout scm
             }
 
             stage('Validate'){
@@ -40,17 +35,6 @@ node {
             }
 
             stage('Build and Package...'){
-              //sh "make packageall PACKAGE_NAME=${packageName}"
-
-              // sh '''
-              //   mkdir -p ${packageName};
-              //   cp -r infrastructure ${packageName};
-              //   zip ${packageName}.zip jenkinsgolambda
-              //   cp ${packageName}.zip ${packageName};
-              //   zip -r ${packageName}.zip ${packageName}
-              //   rm -rf ${packageName}
-              // '''
-
               sh "make build"
 
               sh "mkdir -p ${packageName}"
@@ -63,7 +47,6 @@ node {
             }
 
             stage('Upload package to AWS S3 testjenkinsartifacts bucket...'){
-              //sh 'export AWS_DEFAULT_REGION=us-west-2'
               sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
             }
         }

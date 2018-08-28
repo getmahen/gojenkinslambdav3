@@ -31,17 +31,9 @@ upload:
 
 .PHONY: package
 package: build
-	cd checkipaddress && zip -v checkipaddress.zip checkipaddress
+	zip -v jenkinsgolambda.zip jenkinsgolambda
 
 .PHONY: packageall
-packageall: build
-	mkdir -p $(PACKAGE_NAME);
-	cp -r infrastructure $(PACKAGE_NAME);
-	cp jenkinsgolambda/jenkinsgolambda $(PACKAGE_NAME);
-	zip -r $(PACKAGE_NAME).zip $(PACKAGE_NAME)
-	rm -rf $(PACKAGE_NAME)
-
-.PHONY: packagealltest
 packagealltest: build
 	mkdir -p $(PACKAGE_NAME);
 	cp -r infrastructure $(PACKAGE_NAME);
@@ -53,8 +45,6 @@ packagealltest: build
 .PHONY: upload
 upload: package
 	@echo "$(TS_COLOR)$(shell date "+%Y/%m/%d %H:%M:%S")$(NO_COLOR)$(OK_COLOR)==> Deploying Zip to s3$(NO_COLOR)"
-	ls -la
-	cd jenkinsgolambda
-	aws s3 cp ./jenkinsgolambda/jenkinsgolambda.zip s3://testjenkinsartifacts/jenkinsgolambda.zip --metadata GitHash=`git rev-parse HEAD`
+	aws s3 cp jenkinsgolambda.zip s3://testjenkinsartifacts/jenkinsgolambda.zip --metadata GitHash=`git rev-parse HEAD`
 
  
