@@ -57,7 +57,8 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              def ver = "${artifactVersion}"
+              //def ver = "${artifactVersion}"
+              def ver = sh returnStdout: true, script: 'git rev-parse HEAD'
               sh "echo VERSION---${ver}"
 
               build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: "${ver}"), 
