@@ -54,7 +54,7 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
+              build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: ${artifactVersion}), 
               string(name: 'REGION', value: 'us-west-2'), 
               string(name: 'DEPLOY_ENV', value: 'dev'), 
               string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
