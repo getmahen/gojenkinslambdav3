@@ -24,14 +24,14 @@ node {
             //print "DEBUG: PACKAGE NAME: ${packageName}"
 
             stage('Checkout'){
-                    gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
-                    artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
-                    packageName = "${lambdaName}-${artifactVersion}"
-
                     checkout scm
             }
 
             stage('Validate'){
+                    gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
+                    artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
+                    packageName = "${lambdaName}-${artifactVersion}"
+
                     echo 'Validating terraform...'
                     dir('infrastructure/terraform') {
                       sh 'terraform init -backend=false'
