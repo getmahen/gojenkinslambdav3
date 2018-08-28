@@ -8,8 +8,10 @@ node {
     ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/github.com/gojenkinslambdav3") {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
+            
+            def gitHash = `git rev-parse HEAD`
             def lambdaName = "jenkinsgolambda"
-            def artifactVersion = "${env.BUILD_ID}-`git rev-parse HEAD`"
+            def artifactVersion = "${env.BUILD_ID}-${gitHash}"
             def packageName = "${lambdaName}-${artifactVersion}"
             
             print "DEBUG: PACKAGE NAME: ${packageName}"
@@ -54,7 +56,7 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: ${artifactVersion}), 
+              build job: 'TestDeployLamda', parameters: [string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
               string(name: 'REGION', value: 'us-west-2'), 
               string(name: 'DEPLOY_ENV', value: 'dev'), 
               string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
