@@ -9,15 +9,25 @@ node {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
 
-            //def gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
-            def gitHash = "`git rev-parse HEAD`"
-            def lambdaName = "jenkinsgolambda"
-            def artifactVersion = "${env.BUILD_ID}-${gitHash}"
-            def packageName = "${lambdaName}-${artifactVersion}"
+            // def gitHash = "`git rev-parse HEAD`"
+            // def lambdaName = "jenkinsgolambda"
+            // def artifactVersion = "${env.BUILD_ID}-${gitHash}"
+            // def packageName = "${lambdaName}-${artifactVersion}"
+
             
-            print "DEBUG: PACKAGE NAME: ${packageName}"
+            def lambdaName = "jenkinsgolambda"
+            def gitHash
+            def artifactVersion
+            def packageName
+
+            
+            //print "DEBUG: PACKAGE NAME: ${packageName}"
 
             stage('Checkout'){
+                    gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
+                    artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
+                    packageName = "${lambdaName}-${artifactVersion}"
+
                     checkout scm
             }
 
@@ -57,14 +67,13 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              def hash = sh returnStdout: true, script: 'git rev-parse HEAD'
-              def version = "${env.BUILD_ID}-${hash}".trim()
-              sh "echo GITHASH---${hash}"
-              sh "echo version---${version}"
+              // def hash = sh returnStdout: true, script: 'git rev-parse HEAD'
+              // def version = "${env.BUILD_ID}-${hash}".trim()
+
 
               build job: 'TestDeployLamda', propagate: false, wait: false,
               parameters: [
-              string(name: 'ARTIFACT_VERSION', value: "${version}"), 
+              string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
               string(name: 'REGION', value: 'us-west-2'), 
               string(name: 'DEPLOY_ENV', value: 'dev'), 
               string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
