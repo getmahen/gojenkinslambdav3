@@ -14,7 +14,8 @@ node {
             def packageName
 
             stage('Checkout'){
-                    checkout scm
+                print "DEBUG: BUILD_ENV======${params.BUILD_ENV}"
+                checkout scm
             }
 
             stage('Validate'){
