@@ -51,6 +51,8 @@ node {
               //   rm -rf ${packageName}
               // '''
 
+              sh "make build"
+              
               sh "mkdir -p ${packageName}"
               sh "cp -r infrastructure ${packageName}"
               sh "zip ${packageName}.zip jenkinsgolambda"
