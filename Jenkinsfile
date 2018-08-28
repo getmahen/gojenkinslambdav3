@@ -57,13 +57,13 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
-              //def ver = "${artifactVersion}"
               def hash = sh returnStdout: true, script: 'git rev-parse HEAD'
               def version = "${env.BUILD_ID}-${hash}".trim()
               sh "echo GITHASH---${hash}"
               sh "echo version---${version}"
 
-              build job: 'TestDeployLamda', parameters: [
+              build job: 'TestDeployLamda', propagate: false,
+              parameters: [
               string(name: 'ARTIFACT_VERSION', value: "${version}"), 
               string(name: 'REGION', value: 'us-west-2'), 
               string(name: 'DEPLOY_ENV', value: 'dev'), 
