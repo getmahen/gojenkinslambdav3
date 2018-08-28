@@ -9,7 +9,7 @@ node {
         withEnv(["GOROOT=${root}", "GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/", "PATH+GO=${root}/bin"]) {
             env.PATH="${GOPATH}/bin:$PATH"
 
-            def gitHash = "`git rev-parse HEAD`"
+            def gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
             def lambdaName = "jenkinsgolambda"
             def artifactVersion = "${env.BUILD_ID}-${gitHash}"
             def packageName = "${lambdaName}-${artifactVersion}"
