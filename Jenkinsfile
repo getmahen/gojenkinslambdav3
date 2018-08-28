@@ -58,6 +58,9 @@ node {
             }
 
             stage('Trigger Lambda Deployment job') {
+              when {
+                expression { "${params.BUILD_ENV}" == 'dev' }
+              }
 
               build job: 'TestDeployLamda', propagate: false, wait: false,
               parameters: [
