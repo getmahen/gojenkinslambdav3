@@ -62,7 +62,7 @@ node {
               sh "echo GITHASH---${hash}"
               sh "echo version---${version}"
 
-              build job: 'TestDeployLamda', propagate: false,
+              build job: 'TestDeployLamda', propagate: false, wait: false,
               parameters: [
               string(name: 'ARTIFACT_VERSION', value: "${version}"), 
               string(name: 'REGION', value: 'us-west-2'), 
