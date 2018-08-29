@@ -9,6 +9,11 @@ pipeline {
     PATH = "${GOPATH}/bin:${GOROOT}/bin:${PATH}"
   }
 
+  parameters {
+        choice(name: 'BUILD_ENV', choices: ['dev', 'qa', 'prod', 'transit', 'master', 'all'], description: 'Choose an environment to build your AMI')
+        string(name: 'BUILDER_REGION', defaultValue: 'us-east-2', description: 'Choose which region to build your lambda. (generally, us-east-2 is for application envs, us-east-1 is for master account)')
+  }
+
   stages {
         stage('checkout') {
             steps {
@@ -81,7 +86,6 @@ pipeline {
                   sh "zip ${env.LAMBDA_NAME}.zip ${env.LAMBDA_NAME}"
                   sh "cp ${env.LAMBDA_NAME}.zip ${packageName}"
                   sh "zip -r ${packageName}.zip ${packageName}"
-                  //sh "rm -rf ${packageName}"
               }
             }
            }
@@ -105,9 +109,6 @@ pipeline {
              wrap([$class: 'BuildUser']) {
               dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
                   sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
-                  // sh "rm -rf ${packageName}.zip"
-                  // sh "rm -rf ${env.LAMBDA_NAME}.zip"
-                  // sh "rm -rf ${env.LAMBDA_NAME}"
               }
             }
            }
@@ -130,8 +131,18 @@ pipeline {
             }
         }
 
-
+        //Trigger Lambda deployment based on certain conditions (see `when` clause below) 
+        //such as Environment  or Branch this build is triggered by
         stage('Trigger Lambda Deployment job'){
+          when {
+              //expression { params.BUILD_ENV == 'dev' }
+
+              anyOf {
+                  branch 'dev'
+                  equals expected: 'dev', actual: params.BUILD_ENV
+              }
+          }
+
            steps {
              wrap([$class: 'BuildUser']) {
                 dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
