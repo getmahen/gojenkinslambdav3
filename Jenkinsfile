@@ -11,7 +11,7 @@ pipeline {
 
   parameters {
         choice(name: 'BUILD_ENV', choices: ['dev', 'qa', 'prod', 'transit', 'master', 'all'], description: 'Choose an environment to build your AMI')
-        string(name: 'BUILDER_REGION', defaultValue: 'us-east-2', description: 'Choose which region to build your lambda. (generally, us-east-2 is for application envs, us-east-1 is for master account)')
+        string(name: 'BUILDER_REGION', defaultValue: 'us-west-2', description: 'Choose which region to build your lambda. (generally, us-east-2 is for application envs, us-east-1 is for master account)')
   }
 
   stages {
@@ -76,6 +76,9 @@ pipeline {
         }
 
         stage('Build and Package...'){
+          environment {
+            WORKSPACE = "${env.GOPATH}/src/github.com/gojenkinslambdav3"
+          }
            steps {
              wrap([$class: 'BuildUser']) {
               dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
@@ -99,7 +102,7 @@ pipeline {
                 }
                 cleanup {
                     echo 'Deleting build artifacts..'
-                    sh "rm -rf ${packageName}"
+                    sh "rm -rf ${env.WORKSPACE}/${packageName}"
                 } 
             }
         }
@@ -150,8 +153,8 @@ pipeline {
                   build job: 'TestDeployLamda', propagate: false, wait: false,
                     parameters: [
                     string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
-                    string(name: 'REGION', value: 'us-west-2'), 
-                    string(name: 'DEPLOY_ENV', value: 'dev'), 
+                    string(name: 'REGION', value: "${params.BUILDER_REGION}"), 
+                    string(name: 'DEPLOY_ENV', value: "${params.BUILD_ENV}"), 
                     string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
                     string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), 
                     string(name: 'LAMBDA_NAME', value: "${env.LAMBDA_NAME}")]
