@@ -20,9 +20,11 @@ pipeline {
 
         stage('Validate') {
           steps {
-            gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
-            artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
-            packageName = "${env.LAMBDA_NAME}-${artifactVersion}"
+            script {
+              gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
+              artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
+              packageName = "${env.LAMBDA_NAME}-${artifactVersion}"
+            }
 
             dir("${env.GOPATH}/src/github.com/gojenkinslambdav3/infrastructure/terraform") {
               sh 'terraform init -backend=false'
