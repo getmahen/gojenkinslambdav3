@@ -11,21 +11,27 @@ pipeline {
   stages {
         stage('checkout') {
             steps {
+              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
                 checkout scm
+              }
             }
         }
 
         stage('Install Dependencies') {
             steps {
-              sh 'go version'
-              sh 'go get -u github.com/golang/dep/...'
-              sh 'dep ensure -v'
+              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                sh 'go version'
+                sh 'go get -u github.com/golang/dep/...'
+                sh 'dep ensure -v'
+              }
             }
         }
 
         stage('Run Unit tests...'){
            steps {
-              sh 'make test'
+             dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                sh 'make test'
+             }
            }
         }
   }
