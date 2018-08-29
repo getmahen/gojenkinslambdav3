@@ -35,14 +35,21 @@ pipeline {
               }
             }
           }
+
+          post {
+                success {
+                    echo 'Package validation passed'
+                }
+                failure {
+                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Package validation FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
+                    echo 'Package validation failed'
+                }
+            }
         }
 
         stage('Install Dependencies') {
             steps {
               wrap([$class: 'BuildUser']) {
-                echo "GITHASH==${gitHash}"
-                echo "artifactVersion==${artifactVersion}"
-                echo "packageName==${packageName}"
 
                 dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
                   sh 'go version'
@@ -74,10 +81,23 @@ pipeline {
                   sh "zip ${env.LAMBDA_NAME}.zip ${env.LAMBDA_NAME}"
                   sh "cp ${env.LAMBDA_NAME}.zip ${packageName}"
                   sh "zip -r ${packageName}.zip ${packageName}"
-                  sh "rm -rf ${packageName}"
+                  //sh "rm -rf ${packageName}"
               }
             }
            }
+           post {
+                success {
+                    echo 'Build and Package successfull'
+                }
+                failure {
+                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Build and Package validation FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
+                    echo 'Build and Package step failed'
+                }
+                cleanup {
+                    echo 'Deleting build artifacts..'
+                    sh "rm -rf ${packageName}"
+                } 
+            }
         }
 
         stage('Upload package to AWS S3 testjenkinsartifacts bucket...'){
