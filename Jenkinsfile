@@ -1,11 +1,15 @@
 pipeline {
   agent any
 
+  environment {
+    GOROOT = tool name: 'Golang', type: 'go'
+    GOPATH = "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_ID}/"
+    PATH+GO= "${GOROOT}/bin"
+  }
+
   stages {
         stage('checkout') {
             steps {
-               tool name: 'Golang', type: 'go'
-                //git url: 'https://github.com/getmahen/gojenkinslambda3.git'
                 checkout scm
 
                 sh 'go version'
