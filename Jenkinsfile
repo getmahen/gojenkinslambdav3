@@ -12,89 +12,103 @@ pipeline {
   stages {
         stage('checkout') {
             steps {
-              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
-                checkout scm
+              wrap([$class: 'BuildUser']) {
+                dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                  checkout scm
+                }
               }
             }
         }
 
         stage('Validate') {
           steps {
-            script {
-              gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
-              artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
-              packageName = "${env.LAMBDA_NAME}-${artifactVersion}"
-            }
+            wrap([$class: 'BuildUser']) {
+              script {
+                gitHash = sh returnStdout: true, script: 'git rev-parse HEAD'
+                artifactVersion = "${env.BUILD_ID}-${gitHash}".trim()
+                packageName = "${env.LAMBDA_NAME}-${artifactVersion}"
+              }
 
-            dir("${env.GOPATH}/src/github.com/gojenkinslambdav3/infrastructure/terraform") {
-              sh 'terraform init -backend=false'
-              sh 'terraform validate'
+              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3/infrastructure/terraform") {
+                sh 'terraform init -backend=false'
+                sh 'terraform validate'
+              }
             }
           }
         }
 
         stage('Install Dependencies') {
             steps {
-              echo "GITHASH==${gitHash}"
-              echo "artifactVersion==${artifactVersion}"
-              echo "packageName==${packageName}"
+              wrap([$class: 'BuildUser']) {
+                echo "GITHASH==${gitHash}"
+                echo "artifactVersion==${artifactVersion}"
+                echo "packageName==${packageName}"
 
-              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
-                sh 'go version'
-                sh 'go get -u github.com/golang/dep/...'
-                sh 'dep ensure -v'
+                dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                  sh 'go version'
+                  sh 'go get -u github.com/golang/dep/...'
+                  sh 'dep ensure -v'
+                }
               }
             }
         }
 
         stage('Run Unit tests...'){
            steps {
-             dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
-                sh 'make test'
+             wrap([$class: 'BuildUser']) {
+              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                  sh 'make test'
+              }
              }
            }
         }
 
         stage('Build and Package...'){
            steps {
-             dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
-                sh "make build"
+             wrap([$class: 'BuildUser']) {
+              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                  sh "make build"
 
-                sh "mkdir -p ${packageName}"
-                sh "cp -r infrastructure ${packageName}"
-                sh "zip ${env.LAMBDA_NAME}.zip ${env.LAMBDA_NAME}"
-                sh "cp ${env.LAMBDA_NAME}.zip ${packageName}"
-                sh "zip -r ${packageName}.zip ${packageName}"
-                sh "rm -rf ${packageName}"
-             }
+                  sh "mkdir -p ${packageName}"
+                  sh "cp -r infrastructure ${packageName}"
+                  sh "zip ${env.LAMBDA_NAME}.zip ${env.LAMBDA_NAME}"
+                  sh "cp ${env.LAMBDA_NAME}.zip ${packageName}"
+                  sh "zip -r ${packageName}.zip ${packageName}"
+                  sh "rm -rf ${packageName}"
+              }
+            }
            }
         }
 
         stage('Upload package to AWS S3 testjenkinsartifacts bucket...'){
            steps {
-             dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
-                sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
-                sh "rm -rf ${packageName}.zip"
-                sh "rm -rf ${env.LAMBDA_NAME}.zip"
-                sh "rm -rf ${env.LAMBDA_NAME}"
-             }
+             wrap([$class: 'BuildUser']) {
+              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                  sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
+                  sh "rm -rf ${packageName}.zip"
+                  sh "rm -rf ${env.LAMBDA_NAME}.zip"
+                  sh "rm -rf ${env.LAMBDA_NAME}"
+              }
+            }
            }
         }
 
 
         stage('Trigger Lambda Deployment job'){
            steps {
-             dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+             wrap([$class: 'BuildUser']) {
+                dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
 
-               build job: 'TestDeployLamda', propagate: false, wait: false,
-                parameters: [
-                string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
-                string(name: 'REGION', value: 'us-west-2'), 
-                string(name: 'DEPLOY_ENV', value: 'dev'), 
-                string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
-                string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), 
-                string(name: 'LAMBDA_NAME', value: "${env.LAMBDA_NAME}")]
-             }
+                  build job: 'TestDeployLamda', propagate: false, wait: false,
+                    parameters: [
+                    string(name: 'ARTIFACT_VERSION', value: "${artifactVersion}"), 
+                    string(name: 'REGION', value: 'us-west-2'), 
+                    string(name: 'DEPLOY_ENV', value: 'dev'), 
+                    string(name: 'VAULT_TOKEN', value: '34324788-2378y4'), 
+                    string(name: 'ANSIBLE_VAULT_ID', value: 'jhsdgfjhgj'), 
+                    string(name: 'LAMBDA_NAME', value: "${env.LAMBDA_NAME}")]
+                }
+              }
            }
         }
 
