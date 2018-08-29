@@ -4,7 +4,7 @@ pipeline {
   environment {
     GOROOT = tool name: 'Golang', type: 'go'
     GOPATH = "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_ID}/"
-    PATH+GO= "${GOROOT}/bin"
+    PATH = "${GOROOT}/bin"
   }
 
   stages {
