@@ -7,6 +7,7 @@ pipeline {
     GOPATH = "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_ID}/"
     //PATH = "${GOROOT}/bin"
     PATH = "${GOPATH}/bin:${GOROOT}/bin:${PATH}"
+    WORKSPACE = "${env.GOPATH}/src/github.com/gojenkinslambdav3"
   }
 
   parameters {
@@ -76,9 +77,7 @@ pipeline {
         }
 
         stage('Build and Package...'){
-          environment {
-            WORKSPACE = "${env.GOPATH}/src/github.com/gojenkinslambdav3"
-          }
+          
            steps {
              wrap([$class: 'BuildUser']) {
               dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
@@ -127,9 +126,9 @@ pipeline {
                 }
                 cleanup {
                     echo 'Deleting build artifacts..'
-                    sh "rm -rf ${packageName}.zip"
-                    sh "rm -rf ${env.LAMBDA_NAME}.zip"
-                    sh "rm -rf ${env.LAMBDA_NAME}"
+                    sh "rm -rf ${env.WORKSPACE}/${packageName}.zip"
+                    sh "rm -rf ${env.WORKSPACE}/${env.LAMBDA_NAME}.zip"
+                    sh "rm -rf ${env.WORKSPACE}/${env.LAMBDA_NAME}"
                 } 
             }
         }
