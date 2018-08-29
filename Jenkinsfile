@@ -41,8 +41,8 @@ pipeline {
                     echo 'Package validation passed'
                 }
                 failure {
-                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Package validation FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
                     echo 'Package validation failed'
+                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Package validation FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
                 }
             }
         }
@@ -90,8 +90,8 @@ pipeline {
                     echo 'Build and Package successfull'
                 }
                 failure {
-                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Build and Package validation FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
                     echo 'Build and Package step failed'
+                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Build and Package validation FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
                 }
                 cleanup {
                     echo 'Deleting build artifacts..'
@@ -105,12 +105,29 @@ pipeline {
              wrap([$class: 'BuildUser']) {
               dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
                   sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
-                  sh "rm -rf ${packageName}.zip"
-                  sh "rm -rf ${env.LAMBDA_NAME}.zip"
-                  sh "rm -rf ${env.LAMBDA_NAME}"
+                  // sh "rm -rf ${packageName}.zip"
+                  // sh "rm -rf ${env.LAMBDA_NAME}.zip"
+                  // sh "rm -rf ${env.LAMBDA_NAME}"
               }
             }
            }
+
+           post {
+                success {
+                    echo 'Uploaded packed to AWS S3 successfully'
+                    slackSend channel: '#infra_chatops', color: 'success', message: "Lambda Package: ${packageName} uploaded to AWS S3 successfully. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
+                }
+                failure {
+                    echo 'Package upload to AWS S3 failed'
+                    slackSend channel: '#infra_chatops', color: 'failed', message: "Lambda Package: ${packageName} upload to AWS S3 FAILED. Job: `${env.JOB_NAME}` (<${env.BUILD_URL}|#${env.BUILD_NUMBER}>)"
+                }
+                cleanup {
+                    echo 'Deleting build artifacts..'
+                    sh "rm -rf ${packageName}.zip"
+                    sh "rm -rf ${env.LAMBDA_NAME}.zip"
+                    sh "rm -rf ${env.LAMBDA_NAME}"
+                } 
+            }
         }
 
 
