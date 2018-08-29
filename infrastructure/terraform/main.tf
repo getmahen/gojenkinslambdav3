@@ -9,7 +9,7 @@ resource "aws_lambda_function" "jenkinsgolambda" {
   timeout       = 10
   description   = "Test Go Lambda function that outputs IP address"
   publish       = false
-}
+
 
 resource "aws_iam_role" "jenkinsgolambda_role" {
   assume_role_policy = <<EOF
