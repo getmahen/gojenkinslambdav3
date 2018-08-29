@@ -19,7 +19,7 @@ pipeline {
         stage('checkout') {
             steps {
               wrap([$class: 'BuildUser']) {
-                dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                dir("${env.WORKSPACE}") {
                   checkout scm
                 }
               }
@@ -35,7 +35,7 @@ pipeline {
                 packageName = "${env.LAMBDA_NAME}-${artifactVersion}"
               }
 
-              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3/infrastructure/terraform") {
+              dir("${env.WORKSPACE}/infrastructure/terraform") {
                 sh 'terraform init -backend=false'
                 sh 'terraform validate'
               }
@@ -57,7 +57,7 @@ pipeline {
             steps {
               wrap([$class: 'BuildUser']) {
 
-                dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                dir("${env.WORKSPACE}") {
                   sh 'go version'
                   sh 'go get -u github.com/golang/dep/...'
                   sh 'dep ensure -v'
@@ -69,7 +69,7 @@ pipeline {
         stage('Run Unit tests...'){
            steps {
              wrap([$class: 'BuildUser']) {
-              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+              dir("${env.WORKSPACE}") {
                   sh 'make test'
               }
              }
@@ -80,7 +80,7 @@ pipeline {
           
            steps {
              wrap([$class: 'BuildUser']) {
-              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+              dir("${env.WORKSPACE}") {
                   sh "make build"
 
                   sh "mkdir -p ${packageName}"
@@ -109,7 +109,7 @@ pipeline {
         stage('Upload package to AWS S3 testjenkinsartifacts bucket...'){
            steps {
              wrap([$class: 'BuildUser']) {
-              dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+              dir("${env.WORKSPACE}") {
                   sh "aws s3 cp ${packageName}.zip s3://testjenkinsartifacts/${packageName}.zip"
               }
             }
@@ -147,7 +147,7 @@ pipeline {
 
            steps {
              wrap([$class: 'BuildUser']) {
-                dir("${env.GOPATH}/src/github.com/gojenkinslambdav3") {
+                dir("${env.WORKSPACE}") {
 
                   build job: 'TestDeployLamda', propagate: false, wait: false,
                     parameters: [
