@@ -12,9 +12,21 @@ pipeline {
         stage('checkout') {
             steps {
                 checkout scm
-
-                sh 'go version'
             }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+              sh 'go version'
+              sh 'go get -u github.com/golang/dep/...'
+              sh 'dep ensure -v'
+            }
+        }
+
+        stage('Run Unit tests...'){
+           steps {
+              sh 'make test'
+           }
         }
   }
     
