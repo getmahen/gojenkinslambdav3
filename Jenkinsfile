@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     LAMBDA_NAME = "jenkinsgolambda"
-    GOROOT = tool name: 'Golang', type: 'go'
+    GOROOT = tool name: 'Go1.10.3', type: 'go'
     GOPATH = "${env.JENKINS_HOME}/jobs/${env.JOB_NAME}/builds/${env.BUILD_ID}/"
     //PATH = "${GOROOT}/bin"
     PATH = "${GOPATH}/bin:${GOROOT}/bin:${PATH}"
